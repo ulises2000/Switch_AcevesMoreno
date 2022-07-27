@@ -1,11 +1,17 @@
-import React, {useEffect, useState} from 'react'
-import { View, Text, StyleSheet, Button } from 'react-native'
+import React, {useEffect, useState, useRef} from 'react'
+import { View, Text, StyleSheet, Button, useWindowDimensions, Alert } from 'react-native'
 
 import  {NumberContainer}  from '../components/NumberContainer'
 import Card from '../components/Card'
 
 const GameScreen = props => {
+
+    const { width, height } = useWindowDimensions()
+    const { userOption, onGameOver } = props
     const [currentGuess, setCurrentGuess] = useState()
+    const [rounds, setRounds] = useState(0)
+    const currentLow = useRef(1)
+    const currentHigh = useRef(100)
 
     const generateRandomBetween = (min, max, userChoice) => {
         min = Math.ceil(min)
@@ -18,17 +24,41 @@ const GameScreen = props => {
         }
     }
 
+    const handlerNextGuess = direction => {
+        if (
+            (direction === 'lower' && currentGuess < userOption) || 
+            (direction === 'greater' && currentGuess > userOption)
+        ){
+            return Alert.alert('No intentes egañarme', 'Eso es mentira!', [
+                {text: 'Intentar de nuevo', style: 'cancel'}
+            ])
+        }
+        if(direction === 'lower'){
+            currentHigh.current = currentGuess
+        } else {
+            currentLow.current = currentGuess
+        }
+
+        generateRandomBetween(currentLow.current, currentHigh.current,)
+        setRounds(current => current + 1)
+    }
+    
     useEffect(() => {
         generateRandomBetween(1, 100, props.userOption)
-    }), []
+    }, [])
+    
+    useEffect(() => {
+        if(currentGuess == userOption) onGameOver(rounds)
+    }, [currentGuess, userOption, onGameOver])
+    
 
     return (
         <View style={styles.screen}>
             <Text>La suposicion del oponente</Text>
             <NumberContainer>{currentGuess}</NumberContainer>
-            <Card style={styles.buttonContainer}>
-                <Button title='Menor' onPress={() => {}}/>
-                <Button title='Mayor' onPress={() => {}}/>
+            <Card style={{...styles.buttonContainer, marginTop: height > 600 ? 20 : 10 }}>
+                <Button title='Menor' onPress={() => handlerNextGuess('lower')}/>
+                <Button title='Mayor' onPress={() => handlerNextGuess('higher')}/>
             </Card>
         </View>
     )
@@ -43,10 +73,9 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 20,
         width: 300,
         maxWidth: '80%'
     }
 })
 
-export default GameScreen
+export default GameScreen   

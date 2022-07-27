@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { Text, StyleSheet, View, Button, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { Text, StyleSheet, View, Button, TouchableWithoutFeedback, Keyboard, useWindowDimensions } from 'react-native'
 
 import Card from '../components/Card'
 import Colors from '../constants/colors'
@@ -7,6 +7,8 @@ import Input from '../components/Input'
 import {NumberContainer} from '../components/NumberContainer'
 
 const StartGameScreen = props => {
+
+    const { width, height } = useWindowDimensions();
 
     const [enteredValue, setEnteredValue] = useState('')
     const [confirmed, setConfirmed] = useState(false);
@@ -36,7 +38,7 @@ const StartGameScreen = props => {
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} >
             <View style={styles.screen}>
                 <Text style={styles.title}>Comenzar Juego</Text>
-                <Card style={styles.inputContainer}>
+                <Card style={{...styles.inputContainer, width: width * 0.8}}>
                     <Text>Elija un número</Text>
                     <Input style={styles.input} 
                         blurOnSubmit
@@ -85,8 +87,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     inputContainer: {
-        width: 300,
-        maxWidth: '80%',
         padding: 20,
         alignItems: 'center',
     },
